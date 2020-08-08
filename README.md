@@ -45,13 +45,15 @@ GET | /auth/login | redirects to / if user logged in. Renders auth/login
 POST | /auth/login | redirects to / if user logged in
 POST | /auth/logout | redirects to / 
 POST | /auth/signup | redirects to /profile
-GET | /profile | redirects to /profile
-GET | /allusers | redirects to /listofusers
-GET | / | redirects to /user/profile
+GET | myprofile | redirects to /profile
+GET | /allusers | redirects to /listofusers  NON PROTECTED ROUTE
+GET | /userprofile | redirects to /user/profile
+POST | /userprofile/add |  PROTECTED ROUTE
 GET | /mynetwork | 
-POST | /mynetwork/add | redirects to / if user logged in
-GET | /library | redirects to /library if user logged in. Renders books/library
+GET | /library | get all books and their status
 POST | /library/addbook | redirects to /addbook if user logged in
+PUT | /library/editbook | redirects to /editbook if user logged in
+
 
 # Models
 
@@ -59,7 +61,6 @@ User model
 - username: String
 - password: String
 - image: String
-- description: String
 - fav genres: enum
 - books: Array
 ```
@@ -71,6 +72,7 @@ Book model
 - genre: enum
 - Rating: Number
 - borrowed: Boolean
+- For lean: Boolean
 ```
 ```
 Network model
