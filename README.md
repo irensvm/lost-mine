@@ -23,7 +23,8 @@ An app that allows you to have control over the books that are lent and borrowed
 - **book come back** - As a user I want to be able to request one of my books back
 - **ask for a book** - As a user I want to be able to borrow a book from my colleagues' library
 - **my network** - As a user I want to see which who they are so I can explore what books i could borrow from their library.
-- **add a friend** - As a user I want to be able to add a friend to my network
+- **add a user to a network** - As a user I want to be able to add a friend to my network
+- **leave a network** - As a user I want to be able to leave a network
   
 
 ## Backlog
@@ -44,7 +45,37 @@ GET | /auth/login | redirects to / if user logged in. Renders auth/login
 POST | /auth/login | redirects to / if user logged in
 POST | /auth/logout | redirects to / 
 POST | /auth/signup | redirects to /profile
+GET | /profile | redirects to /profile
+GET | /allusers | redirects to /listofusers
+GET | / | redirects to /user/profile
+GET | /mynetwork | 
+POST | /mynetwork/add | redirects to / if user logged in
 GET | /library | redirects to /library if user logged in. Renders books/library
-POST | /network/add | redirects to / if user logged in
-GET | /network | 
 POST | /library/addbook | redirects to /addbook if user logged in
+
+# Models
+
+User model
+- username: String
+- password: String
+- image: String
+- description: String
+- fav genres: enum
+- books: Array
+```
+```
+Book model
+- title: String
+- description: String
+- author: String
+- genre: enum
+- Rating: Number
+- borrowed: Boolean
+```
+```
+Network model
+- network-users: Object ID
+- 
+
+```
+```
