@@ -1,110 +1,100 @@
-const express    = require('express');
-const authRoutes = express.Router();
+const express = require('express')
+const router = express.Router()
+const mongoose = require('mongoose');
+const bcryptjs = require('bcryptjs')
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const ensureLogin = require('connect-ensure-login')
+const User = require('../models/User-model')
+const saltRounds = 10
 
-const passport   = require('passport');
-const bcrypt     = require('bcryptjs');
-
-// require the user model !!!!
-const User       = require('../models/user-model');
+/* CREATE ACCOUNT  */
 
 
 authRoutes.post('/signup', (req, res, next) => {
-    const username = req.body.username;
-    const password = req.body.password;
-  
-    if (!username || !password) {
-      res.status(400).json({ message: 'Provide username and password' });
-      return;
-    }
+    console.log(res)
+    const {
+        email,
+        fullName,
+        password
+    } = req.body;
 
-    if(password.length < 7){
-        res.status(400).json({ message: 'Please make your password at least 8 characters long for security purposes.' });
+    if (!email || !password) {
+        res.status(400)({
+            errorMessage: 'All fields are mandatory. Please provide your email and password.'
+        });
         return;
     }
-  
-    User.findOne({ username }, (err, foundUser) => {
 
-        if(err){
-            res.status(500).json({message: "Username check went bad."});
-            return;
-        }
-
-        if (foundUser) {
-            res.status(400).json({ message: 'Username taken. Choose another one.' });
-            return;
-        }
-  
-        const salt     = bcrypt.genSaltSync(10);
-        const hashPass = bcrypt.hashSync(password, salt);
-  
-        const aNewUser = new User({
-            username: username,
-            password: hashPass
-        });
-  
-        aNewUser.save(err => {
-            if (err) {
-                res.status(400).json({ message: 'Saving user to database went wrong.' });
-                return;
-            }
-            
-            // Automatically log in user after sign up
-            // .login() here is actually predefined passport method
-            req.login(aNewUser, (err) => {
-
-                if (err) {
-                    res.status(500).json({ message: 'Login after signup went bad.' });
-                    return;
-                }
-            
-                // Send the user's information to the frontend
-                // We can use also: res.status(200).json(req.user);
-                res.status(200).json(aNewUser);
+    const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+    if (!regex.test(password)) {
+        res
+            .status(500)({
+                errorMessage: 'Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.'
             });
+        return;
+    }
+
+    bcryptjs
+        .genSalt(saltRounds)
+        .then(salt => bcryptjs.hash(password, salt))
+        .then(hashedPassword => {
+            return User.create({
+                email,
+                fullName,
+                passwordHash: hashedPassword
+            });
+
+        })
+
+        .then(userFromDB => {
+            req.session.currentUser = userFromDB;
+            res.redirect('/homepage');
+        })
+
+        .catch(error => {
+            if (error instanceof mongoose.Error.ValidationError) {
+                res.status(500)({
+                    errorMessage: error.message
+                });
+            } else if (error.code === 11000) {
+                res.status(500)({
+                    errorMessage: 'Email need to be unique. Either username or email is already used.'
+                });
+            } else {
+                next(error);
+            }
         });
-    });
-});
-
-authRoutes.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, theUser, failureDetails) => {
-      if (err) {
-          res.status(500).json({ message: 'Something went wrong authenticating user' });
-          return;
-      }
-  
-      if (!theUser) {
-         
-          res.status(401).json(failureDetails);
-          return;
-      }
-
-      // save user in session
-      req.login(theUser, (err) => {
-          if (err) {
-              res.status(500).json({ message: 'Session save went bad.' });
-              return;
-          }
-
-          res.status(200).json(theUser);
-      });
-  })(req, res, next);
-});
-
-authRoutes.post('/logout', (req, res, next) => {
-  
-  req.logout();
-  res.status(200).json({ message: 'Log out success!' });
 });
 
 
-authRoutes.get('/loggedin', (req, res, next) => {
-  
-  if (req.isAuthenticated()) {
-      res.status(200).json(req.user);
-      return;
-  }
-  res.status(403).json({ message: 'Unauthorized' });
+/* LOGIN */
+
+router.post('/login',
+    passport.authenticate('local', {
+        successRedirect: '/homepage',
+        failureRedirect: '/login',
+        failureFlash: true,
+        passReqToCallback: true
+    })
+);
+router.get("/auth/google", passport.authenticate("google", {
+    scope: [
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email"
+    ]
+}));
+router.get("/auth/google/callback", passport.authenticate("google", {
+    successRedirect: "/",
+    failureRedirect: "/"
+}));
+
+/* LOGOUT */
+
+router.post('/logout', (req, res, next) => {
+    req.session.destroy();
 });
+
 
 
 module.exports = authRoutes;

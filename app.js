@@ -9,10 +9,13 @@ const mongoose     = require('mongoose');
 const logger       = require('morgan');
 const path         = require('path');
 const cors         = require('cors');
+const User = require('./models/User-model')
 
 const session       = require('express-session');
 const passport      = require('passport');
 require('./configs/passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const LocalStrategy = require('passport-local').Str
 
 mongoose
   .connect('mongodb://localhost/lost-mine-be', {useNewUrlParser: true})
@@ -27,12 +30,74 @@ const app_name = require('./package.json').name;
 const debug = require('debug')(`${app_name}:${path.basename(__filename).split('.')[0]}`);
 
 const app = express();
+require('./config/session.config')(app)
+
+app.use(
+  session({
+    secret: 'una-secret-cualquiera',
+    resave: true,
+    saveUninitialized: true
+  })
+);
+passport.serializeUser((user, callback) => {
+  callback(null, user._id);
+});
+
+passport.deserializeUser((id, callback) => {
+  User.findById(id)
+    .then(user => {
+      callback(null, user);
+    })
+    .catch(error => {
+      callback(error);
+    });
+});
+passport.use(
+  new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "http://localhost:3000/"
+  },
+  (accessToken, refreshToken, profile, done) => {
+    console.log("Google account details:", profile);
+    User.findOne({
+      googleID: profile.id
+    }).then(user => {
+      if (user) {
+        done(null, user);
+        return;
+      }
+      User.create({
+        googleID: req.body.profile.id,
+        fullName: profile.displayName,
+        avatar: profile.photos[0].value,
+        email: profile.emails[0].value
+      })
+        .then(newUser => {
+          console.log("error-message", newUser)
+          done(null, newUser);
+        })
+        .catch(err => done(err)); // closes User.create()
+    })
+      .catch(err => done(err)); // closes User.findOne()
+  })
+);
 
 // Middleware Setup
 app.use(logger('dev'));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use((req, res, next) => {
+    bodyParser.json()(req, res, err => {
+        if (err) {
+            console.error(err);
+            return res.sendStatus(400); // Bad request
+        }
+
+        next();
+    });
+});
 
 // Express View engine setup
 
@@ -51,7 +116,7 @@ app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
 // default value for title local
-app.locals.title = 'Express - Generated with IronGenerator';
+app.locals.title = 'Lost&Mine';
 
 app.use(
   cors({
