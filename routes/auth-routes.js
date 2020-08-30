@@ -11,29 +11,25 @@ const saltRounds = 10
 /* CREATE ACCOUNT  */
 
 
-authRoutes.post('/signup', (req, res, next) => {
+router.post('/signup', (req, res, next) => {
     console.log(res)
     const {
         email,
-        fullName,
         password
     } = req.body;
 
     if (!email || !password) {
-        res.status(400)({
+        res.status(400).json({
             errorMessage: 'All fields are mandatory. Please provide your email and password.'
         });
         return;
     }
 
-    const regex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
-    if (!regex.test(password)) {
-        res
-            .status(500)({
-                errorMessage: 'Password needs to have at least 6 chars and must contain at least one number, one lowercase and one uppercase letter.'
-            });
+    if(password.length < 7){
+        res.status(400).json({ message: 'Please make your password at least 8 characters long for security purposes.' });
         return;
     }
+    
 
     bcryptjs
         .genSalt(saltRounds)
@@ -41,7 +37,7 @@ authRoutes.post('/signup', (req, res, next) => {
         .then(hashedPassword => {
             return User.create({
                 email,
-                fullName,
+                //fullName,
                 passwordHash: hashedPassword
             });
 
@@ -49,22 +45,24 @@ authRoutes.post('/signup', (req, res, next) => {
 
         .then(userFromDB => {
             req.session.currentUser = userFromDB;
-            res.redirect('/homepage');
+            res.redirect('/profile');
         })
 
         .catch(error => {
             if (error instanceof mongoose.Error.ValidationError) {
-                res.status(500)({
+                res.status(500).json({
                     errorMessage: error.message
                 });
             } else if (error.code === 11000) {
-                res.status(500)({
+                res.status(500).json({
                     errorMessage: 'Email need to be unique. Either username or email is already used.'
                 });
             } else {
                 next(error);
             }
         });
+
+        
 });
 
 
@@ -72,7 +70,7 @@ authRoutes.post('/signup', (req, res, next) => {
 
 router.post('/login',
     passport.authenticate('local', {
-        successRedirect: '/homepage',
+        successRedirect: '/profile',
         failureRedirect: '/login',
         failureFlash: true,
         passReqToCallback: true
@@ -85,8 +83,8 @@ router.get("/auth/google", passport.authenticate("google", {
     ]
 }));
 router.get("/auth/google/callback", passport.authenticate("google", {
-    successRedirect: "/",
-    failureRedirect: "/"
+    successRedirect: "/profile",
+    failureRedirect: "/login"
 }));
 
 /* LOGOUT */
@@ -95,6 +93,16 @@ router.post('/logout', (req, res, next) => {
     req.session.destroy();
 });
 
+/* LOGGEDIN */
+
+router.get('/loggedin', (req, res, next) => {
+    if (req.isAuthenticated()) {
+      res.status(200).json(req.user);
+      return;
+    }
+    res.status(403).json({ message: 'acces Unauthorized' });
+  });
 
 
-module.exports = authRoutes;
+
+module.exports = router;

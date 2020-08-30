@@ -15,7 +15,7 @@ const session       = require('express-session');
 const passport      = require('passport');
 require('./configs/passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const LocalStrategy = require('passport-local').Str
+const LocalStrategy = require('passport-local').Strategy
 
 mongoose
   .connect('mongodb://localhost/lost-mine-be', {useNewUrlParser: true})
@@ -30,11 +30,11 @@ const app_name = require('./package.json').name;
 const debug = require('debug')(`${app_name}:${path.basename(__filename).split('.')[0]}`);
 
 const app = express();
-require('./config/session.config')(app)
+require('./configs/session.config')(app)
 
 app.use(
   session({
-    secret: 'una-secret-cualquiera',
+    secret: process.env.SESS_SECRET,
     resave: true,
     saveUninitialized: true
   })
@@ -56,7 +56,7 @@ passport.use(
   new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/"
+    callbackURL: "/auth/google/callback"
   },
   (accessToken, refreshToken, profile, done) => {
     console.log("Google account details:", profile);
@@ -124,12 +124,7 @@ app.use(
     origin: ['http://localhost:3001', 'http://localhost:3000'] // <== aceptar llamadas desde este dominio
   })
 );
-// ADD SESSION SETTINGS HERE:
-app.use(session({
-  secret:"some secret goes here",
-  resave: true,
-  saveUninitialized: true
-}));
+
 
 // USE passport.initialize() and passport.session() HERE:
 app.use(passport.initialize());
@@ -139,8 +134,10 @@ app.use(passport.session());
 
 const index = require('./routes/index');
 app.use('/', index);
-const authRoutes = require('./routes/auth-routes');
-app.use('/api', authRoutes);
+const router = require('./routes/auth-routes');
+app.use('/api', router);
 
+const bookRoute = require('./routes/book-routes');
+app.use('/api', bookRoute);
 
 module.exports = app;
