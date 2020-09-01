@@ -10,7 +10,6 @@ const userSchema = new Schema({
     unique: true,
     required: [true, "Email is required"],
     match: [/^\S+@\S+\.\S+$/, 'Not a valid email.']
-
   },
   password: String,
   googleID: String,
@@ -24,7 +23,10 @@ const userSchema = new Schema({
 },
 
   {
-    timestamps: true
+    timestamps: {
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
+    }
   });
 
 module.exports = model('User', userSchema);
