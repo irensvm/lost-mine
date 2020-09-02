@@ -4,11 +4,13 @@ const router = express.Router()
 const Book = require('../models/Book-model')
 
 router.post('/books', (req, res, next) => {
-  // req.body
+  console.log(req.body)
   Book.create({
     title: req.body.title,
     description: req.body.description,
     author: req.body.author,
+    genre: req.body.genre
+
   })
     .then(response => {
       res.json(response)
@@ -42,19 +44,19 @@ router.get('/books/:id', (req, res, next) => {
 
 })
 
-router.put('/books/:id', (req, res, next) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    res.status(400).json({ message: 'Specified id is not valid' });
-    return;
-  }
-
-  Book.findByIdAndUpdate(req.params.id, req.body)
-    .then(() => {
-      res.json({ message: `Book with ${req.book.id} is updated successfully.` });
-    })
-    .catch(error => {
-      res.json(error);
-    });
-});
-
+//router.put('/books/:id', (req, res, next) => {
+//  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+//    res.status(400).json({ message: 'Specified id is not valid' });
+//    return;
+//  }
+//
+//  Book.findByIdAndUpdate(req.params.id, req.body)
+//    .then(() => {
+//      res.json({ message: `Book with ${req.book.id} is updated successfully.` });
+//    })
+//    .catch(error => {
+//      res.json(error);
+//    });
+//});
+//
 module.exports = router
