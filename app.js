@@ -10,7 +10,6 @@ const path         = require('path');
 const cors         = require('cors');
 const User = require('./models/User-model')
 const passport      = require('passport');
-require('./configs/passport');
 
 require('./configs/mongodb');
 
@@ -52,10 +51,12 @@ app.locals.title = 'Lost&Mine';
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:3001', 'http://localhost:3000'] // <== aceptar llamadas desde este dominio
+    origin: ['http://localhost:3001', 'http://localhost:3000', "https://accounts.google.com", "https://www.googleapis.com"] // <== aceptar llamadas desde este dominio
+  
   })
 );
 
+require('./configs/passport');
 
 // USE passport.initialize() and passport.session() HERE:
 app.use(passport.initialize());

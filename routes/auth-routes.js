@@ -109,8 +109,8 @@ router.get(
 router.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    successRedirect: "/profile",
-    failureRedirect: "/login"
+    successRedirect: "http://localhost:3001/",
+    failureRedirect: "http://localhost:3001/login"
   })
 )
 
