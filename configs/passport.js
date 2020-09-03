@@ -50,7 +50,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback"
+      callbackURL: "/api/auth/google/callback"
     },
     (accessToken, refreshToken, profile, done) => {
       // to see the structure of the data in received response:
@@ -63,7 +63,7 @@ passport.use(
             return
           }
 
-          User.create({ googleID: profile.id, fullName: profile.displayName, avatar: profile.photos[0].value })
+          User.create({ googleID: profile.id, fullName: profile.displayName, avatar: profile.photos[0].value, email: profile.emails[0].value })
             .then(newUser => {
               done(null, newUser)
             })
