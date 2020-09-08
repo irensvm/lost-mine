@@ -12,6 +12,14 @@ const userSchema = new Schema({
   description: String,
   genre: String,
   author: String,
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  faved:{
+    type: Boolean,
+    default:false
+  }
 
 },
 

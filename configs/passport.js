@@ -20,6 +20,7 @@ passport.deserializeUser((userIdFromSession, cb) => {
 
 passport.use(
   new LocalStrategy({ passReqToCallback: true }, (req, email, password, callback) => {
+    console.log("email", email)
 
     console.log("Passport is authenticating with Local Strategy...")
 
@@ -69,6 +70,8 @@ passport.use(
             })
             .catch(err => done(err)) // closes User.create()
         })
+        req.session.user = user
+
         .catch(err => done(err)) // closes User.findOne()
     }
   )

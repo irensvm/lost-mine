@@ -72,4 +72,7 @@ app.use('/api', router);
 const bookRoute = require('./routes/book-routes');
 app.use('/api', bookRoute);
 
+const profileRoute = require('./routes/profile-routes');
+app.use('/api', profileRoute);
+
 module.exports = app;
