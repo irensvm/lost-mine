@@ -1,6 +1,5 @@
 const User          = require('../models/User-model');
 const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require("passport-google-oauth20").Strategy
 const bcrypt        = require('bcryptjs'); // !!!
 const passport      = require('passport');
 
@@ -18,61 +17,23 @@ passport.deserializeUser((userIdFromSession, cb) => {
   });
 });
 
-passport.use(
-  new LocalStrategy({ passReqToCallback: true }, (req, email, password, callback) => {
-    console.log("email", email)
-
-    console.log("Passport is authenticating with Local Strategy...")
-
-    User.findOne({ email })
-    .then(user => {
-      if (!user) {
-        console.log("could not find a user")
-        return callback(null, false, { message: 'Incorrect email' })
-      }
-      if (!bcrypt.compareSync(password, user.password)) {
-        console.log("password doesn't match")
-        return callback(null, false, { message: 'Incorrect password' })
-      }
-      console.log("everything OK with the authentication...")
-
-      req.session.user = user
-
-      callback(null, user)
-    })
-    .catch(error => {
-      console.log("Something went wrong with the authentication...")
-      callback(error)
-    })
-  })
-)
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback"
-    },
-    (accessToken, refreshToken, profile, done) => {
-      // to see the structure of the data in received response:
-      console.log("Google account details:", profile)
-
-      User.findOne({ googleID: profile.id })
-        .then(user => {
-          if (user) {
-            done(null, user)
-            return
-          }
-
-          User.create({ googleID: profile.id, fullName: profile.displayName, avatar: profile.photos[0].value, email: profile.emails[0].value })
-            .then(newUser => {
-              done(null, newUser)
-            })
-            .catch(err => done(err)) // closes User.create()
-        })
-        req.session.user = user
-
-        .catch(err => done(err)) // closes User.findOne()
+passport.use(new LocalStrategy((email, password, next) => {
+  User.findOne({ email }, (err, foundUser) => {
+    if (err) {
+      next(err);
+      return;
     }
-  )
-)
+
+    if (!foundUser) {
+      next(null, false, { message: 'Incorrect username.' });
+      return;
+    }
+
+    if (!bcrypt.compareSync(password, foundUser.password)) {
+      next(null, false, { message: 'Incorrect password.' });
+      return;
+    }
+
+    next(null, foundUser);
+  });
+}));

@@ -8,7 +8,6 @@ const hbs          = require('hbs');
 const logger       = require('morgan');
 const path         = require('path');
 const cors         = require('cors');
-const User = require('./models/User-model')
 const passport      = require('passport');
 
 require('./configs/mongodb');
@@ -45,20 +44,18 @@ app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.ico')));
 
 
 
-// default value for title local
 app.locals.title = 'Lost&Mine';
 
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:3001', 'http://localhost:3000', "https://accounts.google.com", "https://www.googleapis.com"] // <== aceptar llamadas desde este dominio
+    origin: ['http://localhost:3001', 'http://localhost:3000'] 
   
   })
 );
 
 require('./configs/passport');
 
-// USE passport.initialize() and passport.session() HERE:
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -66,8 +63,10 @@ app.use(passport.session());
 
 const index = require('./routes/index');
 app.use('/', index);
+
 const router = require('./routes/auth-routes');
 app.use('/api', router);
+
 
 const bookRoute = require('./routes/book-routes');
 app.use('/api', bookRoute);

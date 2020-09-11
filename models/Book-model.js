@@ -9,17 +9,16 @@ const userSchema = new Schema({
     required: true,
 
   },
-  description: String,
+  opinion: String,
   genre: String,
   author: String,
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  owner: String,
+  lented: String,
   faved:{
     type: Boolean,
     default:false
-  }
+  },
+  rating: String,
 
 },
 
