@@ -19,7 +19,7 @@ router.get('/books', (req, res, next) => {
   
 })
 
-router.post('/books/createbook', (req, res, next) => {
+router.post('/books', (req, res, next) => {
   console.log(req.body)
   const user = req.session.currentUser
   Book.create({
@@ -39,19 +39,19 @@ router.post('/books/createbook', (req, res, next) => {
     })
 })
 
-//router.get('/profile', (req, res, next) => {
-//  console.log('usuario login ok?:', req.session.currentUser._id)
-//  const userId = req.session.currentUser._id
-//  console.log(userId)
-//  Book.find({ owner: userId })
-//      .populate('owner')
-//      .then(books => {
-//          res.json(books)
-//      })
-//      .catch(err => {
-//          res.json(err)
-//      })
-//})
+router.get('/profile', (req, res, next) => {
+  console.log('usuario login ok?:', req.session.currentUser._id)
+  const userId = req.session.currentUser._id
+  console.log(userId)
+  Book.find({ owner: userId })
+      .populate('owner')
+      .then(books => {
+          res.json(books)
+      })
+      .catch(err => {
+          res.json(err)
+      })
+})
 
 router.get('/books/:id', (req, res, next) => {
   console.log(req.params.id)

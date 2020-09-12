@@ -52,8 +52,7 @@ app.use(
     origin: ['http://localhost:3001', 'http://localhost:3000'] 
   
   })
-);
-
+)
 require('./configs/passport');
 
 app.use(passport.initialize());
@@ -71,7 +70,14 @@ app.use('/api', router);
 const bookRoute = require('./routes/book-routes');
 app.use('/api', bookRoute);
 
-const profileRoute = require('./routes/profile-routes');
-app.use('/api', profileRoute);
+const profileRoutes = require('./routes/profile-routes');
+app.use('/api', profileRoutes);
+
+
+//app.use((req, res, next) => {      SI HAY PROBLEMAS CON LAS RUTAS AL HACER DEPLOY
+//  // If no routes match, send them the React HTML.
+//  res.sendFile(__dirname + "/public/index.html");
+//});
+//
 
 module.exports = app;

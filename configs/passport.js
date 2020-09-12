@@ -29,7 +29,7 @@ passport.use(new LocalStrategy((email, password, next) => {
       return;
     }
 
-    if (!bcrypt.compareSync(password, foundUser.password)) {
+    if (!bcrypt.compareSync(password, user.password)) {
       next(null, false, { message: 'Incorrect password.' });
       return;
     }

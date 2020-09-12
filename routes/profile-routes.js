@@ -1,10 +1,10 @@
 
 const express = require('express');
 const mongoose = require('mongoose')
-const router = express.Router()
 const Book = require('../models/Book-model')
 const User = require('../models/User-model')
 
+const router = express.Router();
 
 
 router.get('/profile', (req, res, next) => {
@@ -19,7 +19,8 @@ router.get('/profile', (req, res, next) => {
   })
   
 })
-router.put('/user/:id', (req, res, next) => {
+
+router.put('/editprofile', (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     res.status(400).json({ message: 'Specified id is not valid' });
     return;
@@ -32,7 +33,8 @@ router.put('/user/:id', (req, res, next) => {
     .catch(error => {
       res.json(error);
     });
+  })
+  
 
 
-
-module.exports = router
+module.exports = router;
