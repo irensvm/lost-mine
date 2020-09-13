@@ -21,14 +21,14 @@ router.get('/books', (req, res, next) => {
 
 router.post('/books', (req, res, next) => {
   console.log(req.body)
-  const user = req.session.currentUser
+  //const user = req.session.currentUser
   Book.create({
     title: req.body.title,
+    owner: req.body.owner,
     opinion: req.body.opinion,
     genre: req.body.genre,
     rating: req.body.rating,
-    owner: req.body.genre.owner,
-    lented:req.body.genre.lented
+    lented:req.body.lented
 
   })
     .then(response => {
@@ -65,19 +65,18 @@ router.get('/books/:id', (req, res, next) => {
 
 })
 
-//router.put('/books/:id', (req, res, next) => {
-//  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-//    res.status(400).json({ message: 'Specified id is not valid' });
-//    return;
-//  }
-//
-//  Book.findByIdAndUpdate(req.params.id, req.body)
-//    .then(() => {
-//      res.json({ message: `Book with ${req.book.id} is updated successfully.` });
-//    })
-//    .catch(error => {
-//      res.json(error);
-//    });
-//});
+router.put('/books/:id', (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    res.status(400).json({ message: 'Specified id is not valid' });
+    return;
+  }
 
+  Book.findByIdAndUpdate(req.params.id, req.body)
+    .then(() => {
+      res.json({ message: `Book with ${req.book.id} is updated successfully.` });
+    })
+    .catch(error => {
+      res.json(error);
+    });
+})
 module.exports = router
