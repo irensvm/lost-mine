@@ -28,7 +28,9 @@ router.post('/books', (req, res, next) => {
     opinion: req.body.opinion,
     genre: req.body.genre,
     rating: req.body.rating,
-    lented:req.body.lented
+    lented:req.body.lented,
+    owner: req.user._id
+
 
   })
     .then(response => {
@@ -39,21 +41,24 @@ router.post('/books', (req, res, next) => {
     })
 })
 
-router.get('/profile', (req, res, next) => {
+//router.get('/profile', (req, res, next) => {
+//  console.log('usuario login ok?:', req.session.currentUser._id)
+//  const userId = req.session.currentUser._id
+//  console.log(userId)
+//  Book.find({ owner: userId })
+//      .populate('owner')
+//      .then(books => {
+//          res.json(books)
+//      })
+//      .catch(err => {
+//          res.json(err)
+//      })
+//})
+
+router.get('/books/:id', (req, res, next) => {
   console.log('usuario login ok?:', req.session.currentUser._id)
   const userId = req.session.currentUser._id
   console.log(userId)
-  Book.find({ owner: userId })
-      .populate('owner')
-      .then(books => {
-          res.json(books)
-      })
-      .catch(err => {
-          res.json(err)
-      })
-})
-
-router.get('/books/:id', (req, res, next) => {
   console.log(req.params.id)
   Book.findById(req.params.id)
     .then(book => {
