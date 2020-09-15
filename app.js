@@ -72,10 +72,10 @@ const profileRoutes = require('./routes/profile-routes');
 app.use('/api', profileRoutes);
 
 
-//app.use((req, res, next) => {      SI HAY PROBLEMAS CON LAS RUTAS AL HACER DEPLOY
-//  // If no routes match, send them the React HTML.
-//  res.sendFile(__dirname + "/public/index.html");
-//});
-//
+app.use((req, res, next) => {      
+  // If no routes match, send them the React HTML.
+  res.sendFile(__dirname + "/public/index.html");
+});
+
 
 module.exports = app;
