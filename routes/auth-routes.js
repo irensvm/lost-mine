@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs')
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const ensureLogin = require('connect-ensure-login')
-const User = require('../models/User-model')
+const User = require('../models/user-model')
 const bcryptSalt = 10
 
 /* CREATE ACCOUNT  */

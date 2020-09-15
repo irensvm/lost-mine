@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose')
 const Book = require('../models/Book-model')
-const User = require('../models/User-model')
+const User = require('../models/user-model')
 
 const router = express.Router();
 
